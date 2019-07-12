@@ -6,3 +6,6 @@ __pycache__
 
 # 参考repo
 chinese-poetry-master/
+
+# char_embedding
+data/

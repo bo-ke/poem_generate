@@ -40,6 +40,6 @@ def get_train_list(file_dir):
 if __name__ == '__main__':
     trainlist = get_train_list(FILE_DIR)
     print(trainlist[:40])
-    with open("./train_data.txt","w") as f:
-        f.write(",".join(trainlist))
+    with open("./data/train_data.txt","w") as f:
+        f.write(" ".join(trainlist))
     f.close()
