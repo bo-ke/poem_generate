@@ -40,6 +40,7 @@ def _parser(datas, category='json'):
     json宋：paragraphs, title
     诗经:content, title, chapter, section
     :param datas:
+    :param filter_dict 只统计字典中的字
     :return:
     """
     docs = []
@@ -99,30 +100,43 @@ def save_poem_content(docs, save_path):
                 fd.write(line + '\n')
 
 
-def combine_words(line):
+def combine_words(line, filter_dict=None):
     """
     将古诗词进行分字, 并进行共现组合
     :param line:
     :return:
     """
     line = re.sub('[。,，.?!！？￥%&\'\\"]', '', line.strip())
-    words = list(line)
+    if filter_dict is None:
+        words = list(line)
+    else:
+        words = [x for x in list(line) if x in filter_dict]
     rst = []
     for i in range(len(words)):
-        for j in range(len(words)):
+        for j in range(i, len(words)):
             if words[i] == words[j]:
                 continue
+            # if words[i] < words[j]:
+            #     rst.append(((words[i], words[j]), line))
+            # else:
+            #     rst.append(((words[j], words[i]), line))
             if words[i] < words[j]:
                 rst.append((words[i], words[j]))
             else:
-                rst.append((words[i], words[j]))
+                rst.append((words[j], words[i]))
     return rst
 
 
-def load_and_seg(spark):
-    data = spark.read.text('poem.txt')
+def load_and_split(spark, filter_dict):
+    """
+
+    :param spark:
+    :param filter_dict:
+    :return:
+    """
+    data = spark.read.text('poem.txt').distinct()
     data.show()
-    seg = data.rdd.flatMap(lambda x: combine_words(x[0]))
+    seg = data.rdd.flatMap(lambda x: combine_words(x[0], filter_dict))
     return seg
 
 
@@ -136,10 +150,31 @@ def word_count_and_sorted(spark, data):
     return spark.createDataFrame(data)
 
 
+def load_local_name_record(path):
+    """
+    加载班级信息名录，只统计班级同学名称的字，减少计算量
+    :param path:
+    :return:
+    """
+    import xlrd
+    book = xlrd.open_workbook(path)
+    tabel = book.sheet_by_index(0)
+    nrow = tabel.nrows
+    contain_token_dict = set()
+    for row in range(1, nrow):
+        name = tabel.cell(row, 1).value[1:]
+        contain_token_dict = contain_token_dict.union(set(list(name)))
+    return contain_token_dict
+
+
 if __name__ == '__main__':
-    path = '/Users/macan/Desktop/chinese-poetry-master'
-    docs = load_poem(path)
-    save_poem_content(docs, 'poem.txt')
+    path = '/Users/macan/Desktop/chinese-poetry-master' # 古诗词路径
+    class_name_tabel_path = '/Users/macan/Desktop/Vcamp/2019Vcamp 3班班级通讯录.xlsx' # 班级通讯录路劲
+    # 加载班级通讯录，得到同学姓名信息
+    filter_dict = load_local_name_record(class_name_tabel_path)
+
+    # docs = load_poem(path)
+    # save_poem_content(docs, 'poem.txt')
 
     conf = SparkConf()
     spark = SparkSession \
@@ -149,9 +184,9 @@ if __name__ == '__main__':
         .config(conf=conf) \
         .getOrCreate()
 
-    seg = load_and_seg(spark)
+    seg = load_and_split(spark, filter_dict)
     counts = word_count_and_sorted(spark, seg)
-    counts.show(100)
+    counts.show(200)
     spark.stop()
 
 
