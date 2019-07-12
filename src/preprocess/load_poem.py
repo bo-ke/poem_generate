@@ -16,12 +16,9 @@ import os
 import json
 import time
 import re
-import random
 
-from pyspark import SparkContext, SparkConf, Row
-from pyspark.sql import SparkSession, SQLContext, Window
-from pyspark.sql.types import *
-import pyspark.sql.functions as fn
+from pyspark import SparkConf, Row
+from pyspark.sql import SparkSession
 
 from src.preprocess.io_utils import read_file
 
@@ -155,5 +152,6 @@ if __name__ == '__main__':
     seg = load_and_seg(spark)
     counts = word_count_and_sorted(spark, seg)
     counts.show(100)
+    spark.stop()
 
 
