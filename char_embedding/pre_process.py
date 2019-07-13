@@ -15,12 +15,19 @@ import json
 
 
 FILE_DIR = "../chinese-poetry-master/ci/"
+TRAIN_DIR = "./data/"
+
 begin = "<BOS>"
 end = "<EOS>"
 
 # print(os.listdir(FILE_DIR))
 
 def get_train_list(file_dir):
+    """
+
+    :param file_dir:
+    :return:
+    """
     train_list = []
     for file in os.listdir(file_dir):
         if ".json" in file:
@@ -40,6 +47,6 @@ def get_train_list(file_dir):
 if __name__ == '__main__':
     trainlist = get_train_list(FILE_DIR)
     print(trainlist[:40])
-    with open("./data/train_data.txt","w") as f:
+    with open(os.path.join(TRAIN_DIR,"train_data.txt"),"w") as f:
         f.write(" ".join(trainlist))
     f.close()

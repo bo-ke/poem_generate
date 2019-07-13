@@ -5,10 +5,15 @@
 
 `pre_process.py`: 数据预处理
 
-`train_data.txt`: `run pre_process.py`生成的训练数据
+`train_data.txt`: `run` `pre_process.py`生成的训练数据
+
+`data/` 训练数据以及输出embedding目录 
+>`data/train_data.txt`   
+`data/embedding_300.bin`
 
 
 ## word2vec的使用
+
 `make`  
 
-`./dsg -train input_file -output embedding_file -type 0 -size 50 -window 5 -negative 10 -hs 0 -sample 1e-4 -threads 1 -binary 1 -iter 5` 
+`./dsg -train ../../data/train_data.txt -output ../../data/embedding_300.bin -type 0 -size 300 -window 2 -negative 10 -hs 0 -sample 1e-4 -threads 4 -binary 1 -iter 30` 
