@@ -4,7 +4,7 @@
 """
 #@Time    : 2019/7/12 12:54
 # @Author  : MaCan (ma_cancan@163.com)
-# @File    : load_poem.py
+# @File    : poem_token_analysis.py
 """
 
 from __future__ import absolute_import
@@ -16,6 +16,7 @@ import os
 import json
 import time
 import re
+import zhconv
 
 from pyspark import SparkConf, Row
 from pyspark.sql import SparkSession
@@ -55,6 +56,7 @@ def _parser(datas, category='json'):
             if doc == '':
                 continue
             content += ''.join(doc)
+        content = zhconv.convert(content, 'zh-cn')
         docs.append(content)
     return docs
 
@@ -100,9 +102,9 @@ def save_poem_content(docs, save_path):
                 fd.write(line + '\n')
 
 
-def combine_words(line, filter_dict=None):
+def combine_token(line, filter_dict=None):
     """
-    将古诗词进行分字, 并进行共现组合
+
     :param line:
     :return:
     """
@@ -111,6 +113,49 @@ def combine_words(line, filter_dict=None):
         words = list(line)
     else:
         words = [x for x in list(line) if x in filter_dict]
+    rst = []
+    for i in range(len(words)):
+        for j in range(i, len(words)):
+            if words[i] == words[j]:
+                continue
+            # if words[i] < words[j]:
+            #     rst.append(((words[i], words[j]), line))
+            # else:
+            #     rst.append(((words[j], words[i]), line))
+            if words[i] < words[j]:
+                rst.append((words[i], words[j]))
+            else:
+                rst.append((words[j], words[i]))
+    return rst
+
+
+def combine_word(line, filter_dict, split=False):
+    """
+    将古诗词进行分字或者分词, 并进行共现组合
+    :param line:
+    :param filter_dict:
+    :param split:是否对名切分成字进行统计
+    :return:
+    """
+    def contains_name():
+        names = []
+        for name in filter_dict:
+            if re.search(name, line) is not None:
+                names.append(name)
+        return names
+
+    line = re.sub('[。,，.?!！？￥%&\'\\"]', '', line.strip())
+    if filter_dict is None:
+        words = list(line)
+    else:
+        if split:
+            tmp = set()
+            [[tmp.add(t) for t in list(x)] for x in filter_dict]
+            filter_dict = tmp
+            words = [x for x in list(line) if x in filter_dict]
+        else:
+            words = [x for x in filter_dict if re.search(x, line) is not None]
+            # print(words)
     rst = []
     for i in range(len(words)):
         for j in range(i, len(words)):
@@ -136,7 +181,7 @@ def load_and_split(spark, filter_dict):
     """
     data = spark.read.text('poem.txt').distinct()
     data.show()
-    seg = data.rdd.flatMap(lambda x: combine_words(x[0], filter_dict))
+    seg = data.rdd.flatMap(lambda x: combine_word(x[0], filter_dict))
     return seg
 
 
@@ -160,21 +205,24 @@ def load_local_name_record(path):
     book = xlrd.open_workbook(path)
     tabel = book.sheet_by_index(0)
     nrow = tabel.nrows
-    contain_token_dict = set()
+    name_dict = set()
     for row in range(1, nrow):
         name = tabel.cell(row, 1).value[1:]
-        contain_token_dict = contain_token_dict.union(set(list(name)))
-    return contain_token_dict
+        name_dict.add(name)
+    return name_dict
 
 
 if __name__ == '__main__':
     path = '/Users/macan/Desktop/chinese-poetry-master' # 古诗词路径
     class_name_tabel_path = '/Users/macan/Desktop/Vcamp/2019Vcamp 3班班级通讯录.xlsx' # 班级通讯录路劲
+
     # 加载班级通讯录，得到同学姓名信息
     filter_dict = load_local_name_record(class_name_tabel_path)
+    print('filter dict size:{}'.format(len(filter_dict)))
 
-    # docs = load_poem(path)
-    # save_poem_content(docs, 'poem.txt')
+    # 读取古诗词数据
+    docs = load_poem(path)
+    save_poem_content(docs, 'poem.txt')
 
     conf = SparkConf()
     spark = SparkSession \
@@ -186,7 +234,7 @@ if __name__ == '__main__':
 
     seg = load_and_split(spark, filter_dict)
     counts = word_count_and_sorted(spark, seg)
-    counts.show(200)
+    counts.show(2000)
     spark.stop()
 
 
