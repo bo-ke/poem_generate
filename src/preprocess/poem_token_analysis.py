@@ -102,33 +102,6 @@ def save_poem_content(docs, save_path):
                 fd.write(line + '\n')
 
 
-def combine_token(line, filter_dict=None):
-    """
-
-    :param line:
-    :return:
-    """
-    line = re.sub('[。,，.?!！？￥%&\'\\"]', '', line.strip())
-    if filter_dict is None:
-        words = list(line)
-    else:
-        words = [x for x in list(line) if x in filter_dict]
-    rst = []
-    for i in range(len(words)):
-        for j in range(i, len(words)):
-            if words[i] == words[j]:
-                continue
-            # if words[i] < words[j]:
-            #     rst.append(((words[i], words[j]), line))
-            # else:
-            #     rst.append(((words[j], words[i]), line))
-            if words[i] < words[j]:
-                rst.append((words[i], words[j]))
-            else:
-                rst.append((words[j], words[i]))
-    return rst
-
-
 def combine_word(line, filter_dict, split=False):
     """
     将古诗词进行分字或者分词, 并进行共现组合
