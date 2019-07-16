@@ -14,7 +14,7 @@ import os
 import json
 
 
-FILE_DIR = "../chinese-poetry-master/ci/"
+FILE_DIR = "../dataset/poetry/"
 TRAIN_DIR = "./data/"
 
 begin = "<BOS>"

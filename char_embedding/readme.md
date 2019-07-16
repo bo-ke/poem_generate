@@ -12,7 +12,12 @@
 `data/embedding_300.bin`
 
 
-## word2vec的使用
+## 生成训练数据
+`run` `pre_process.py`生成的训练数据
+
+
+## 生成char embedding
+进到word2vec/trunk目录下`run`  
 
 `make`  
 
