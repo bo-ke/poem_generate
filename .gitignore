@@ -4,8 +4,8 @@
 # python
 __pycache__
 
-# 参考repo
-chinese-poetry-master/
+# 数据集文件
+dataset/
 
-# char_embedding
-data/
+# embedding等数据
+char_embedding/data
