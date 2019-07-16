@@ -2,4 +2,5 @@
 
 
 ## 文件配置
-`chinese-poetry-master`: 项目参考repo
+`char_embedding`: 字向量预训练
+`dataset`: 数据集文件
