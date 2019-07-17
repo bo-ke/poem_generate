@@ -21,13 +21,16 @@ import zhconv
 from pyspark import SparkConf, Row
 from pyspark.sql import SparkSession
 
-from src.preprocess.io_utils import read_file
+import sys
+# sys.path.append('../..')
+# from src.preprocess.io_utils import read_file
 
 
 formats = {
     #'youmengying':['content'],
     #'ci':['paragraphs', 'rhythmic'],
-    'json': ['paragraphs', 'title'],
+    #'json': ['paragraphs', 'title'],
+    'json': ['paragraphs'],
     #'shijing': ['content', 'title', 'chapter', 'section'],
     #'wudai': ['paragraphs', 'title']
 }
@@ -79,6 +82,8 @@ def load_poem(file_path):
             curr_file = os.path.join(curr_dir, file)
             if not os.path.isfile(curr_file) or file[-4:] != 'json':
                 continue
+            # if 'tang' not in file:
+            #     continue
             print('\t file: {}'.format(curr_file))
 
             with open(curr_file, 'r', encoding='utf-8') as fd:
@@ -180,18 +185,42 @@ def load_local_name_record(path):
     nrow = tabel.nrows
     name_dict = set()
     for row in range(1, nrow):
-        name = tabel.cell(row, 1).value[1:]
+        name = tabel.cell(row, 1).value
         name_dict.add(name)
     return name_dict
+
+
+def read_line_data(file_path):
+    """
+    按行读取文件
+    :param file_path 文件路径
+    :return list
+    """
+    datas = []
+    with open(file_path, 'r', encoding='utf-8') as fd:
+        for line in fd:
+            datas.append(line.strip())
+    return datas
 
 
 if __name__ == '__main__':
     path = '/Users/macan/Desktop/chinese-poetry-master' # 古诗词路径
     class_name_tabel_path = '/Users/macan/Desktop/Vcamp/2019Vcamp 3班班级通讯录.xlsx' # 班级通讯录路劲
-
+    # 姓名名录数据
+    name_dict_path = 'dataset/name_dict.txt'
     # 加载班级通讯录，得到同学姓名信息
-    filter_dict = load_local_name_record(class_name_tabel_path)
-    print('filter dict size:{}'.format(len(filter_dict)))
+    if os.path.exists(name_dict_path) and os.path.isfile(name_dict_path):
+        print('load local name dict form <{}>'.format(name_dict_path))
+        filter_dict = read_line_data(name_dict_path)
+    else:
+        print('get name dict from class name excel file.')
+        filter_dict = load_local_name_record(class_name_tabel_path)
+        with open('dataset/name_dict.txt', 'w', encoding='utf-8') as fd:
+            for line in filter_dict:
+                fd.write(line + '\n')
+    # 去除姓
+    filter_dict = [x[1:] for x in filter_dict]
+    print('name filter dict size:{}'.format(len(filter_dict)))
 
     # 读取古诗词数据
     docs = load_poem(path)
@@ -208,6 +237,7 @@ if __name__ == '__main__':
     seg = load_and_split(spark, filter_dict)
     counts = word_count_and_sorted(spark, seg)
     counts.show(2000)
+    print(counts.count())
     spark.stop()
 
 
