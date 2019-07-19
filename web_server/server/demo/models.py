@@ -13,3 +13,9 @@
 from django.db import models
 
 # Create your models here.
+
+class User_portrait(models):
+    name = models.TextField()
+    match_name = models.TextField()
+    poem = models.TextField()
+    children = models.TextField()
