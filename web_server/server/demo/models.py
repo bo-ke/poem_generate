@@ -14,7 +14,7 @@ from django.db import models
 
 # Create your models here.
 
-class User_portrait(models):
+class User_portrait(models.Model):
     name = models.TextField()
     match_name = models.TextField()
     poem = models.TextField()
