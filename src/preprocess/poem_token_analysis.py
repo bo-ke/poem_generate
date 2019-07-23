@@ -107,16 +107,6 @@ def save_poem_content(docs, save_path):
             for line in doc:
                 fd.write(line + '\n')
 
-def contains_name(line, filter_dict):
-    """
-    当前古诗词是否包含需要统计的字词
-    """
-    names = []
-    for name in filter_dict:
-        if re.search(name, line) is not None:
-            names.append(name)
-    return names
-
 
 def combine_word(line, filter_dict, split=False):
     """
@@ -143,10 +133,6 @@ def combine_word(line, filter_dict, split=False):
         for j in range(i, len(words)):
             if words[i] == words[j]:
                 continue
-            # if words[i] < words[j]:
-            #     rst.append(((words[i], words[j]), line))
-            # else:
-            #     rst.append(((words[j], words[i]), line))
             if words[i] < words[j]:
                 rst.append((words[i], words[j]))
             else:
@@ -175,12 +161,13 @@ def token_distance(line, co_tokens=None):
     return distances
 
 
-def word_count_and_sorted(spark, data):
+def word_count_and_sorted(spark, data, filter_dict):
     """
     共现词频统计
     """
     data = data \
-        .rdd\
+        .rdd \
+        .distinct()\
         .flatMap(lambda x: combine_word(x[0], filter_dict))\
         .map(lambda word: (word, 1))\
         .reduceByKey(lambda x, y: x + y)\
@@ -206,23 +193,28 @@ def load_local_name_record(path):
     book = xlrd.open_workbook(path)
     tabel = book.sheet_by_index(0)
     nrow = tabel.nrows
-    name_dict = set()
+    name_dict = {}
     for row in range(1, nrow):
         name = tabel.cell(row, 1).value
-        name_dict.add(name)
+        sex = tabel.cell(row, 4).value
+        name_dict[name] = sex
     return name_dict
 
 
-def read_line_data(file_path):
+def read_name_dict_data(file_path):
     """
     按行读取文件
     :param file_path 文件路径
     :return list
     """
-    datas = []
+    datas = {}
     with open(file_path, 'r', encoding='utf-8') as fd:
         for line in fd:
-            datas.append(line.strip())
+            try:
+                line = line.strip().split()
+                datas[line[0]] = line[1]
+            except IndexError as e:
+                print(e)
     return datas
 
 
@@ -234,15 +226,13 @@ def load_co_token_cnt(path):
     if not os.path.exists(path) or not os.path.isfile(path):
         raise FileNotFoundError('{} file not found...'.format(path))
     co_cnt = {}
-    max_cnt = 0
+    idx = 0
     with open(path, 'r', encoding='utf-8') as fd:
         for line in fd:
             line = json.loads(line.strip())
-            co_cnt[(line['word']['_1'], line['word']['_2'])
-                   ] = int(line['count'])
-            if max_cnt < line['count']:
-                max_cnt += 1
-    co_cnt = {k: (v-1+0.01)/(max_cnt-1+0.01) for k, v in co_cnt.items()}
+            co_cnt[(line['word']['_1'], line['word']['_2'])] = idx
+            idx += 1
+    co_cnt = {k:(idx - v)/idx for k,v in co_cnt.items()}
     return co_cnt
 
 
@@ -251,21 +241,55 @@ def name_match(co_cnt, names):
     通过名，使用姓名进行替换
     """
     new_co_cnt = {}
+    name_pair_dict = {}
     for name_pair, prob in co_cnt.items():
-        new_name = []
+        p1, p2 = [], []
         for name in names:
             if name_pair[0] == name[1:]:
-                new_name.append(name)
+                p1.append(name)
             elif name_pair[1] == name[1:]:
-                new_name.append(name)
-            if len(new_name) == 2:
-                break
-        new_co_cnt[(new_name[0], new_name[1])] = prob
-        new_co_cnt[(new_name[1], new_name[0])] = prob
-    return new_co_cnt
+                p2.append(name)
+        # print(p1, p2)
+        for i in range(len(p1)):
+            for j in range(len(p2)):
+                name1, name2 = sorted_name(p1[i], p2[j])
+                new_co_cnt[(name1, name2)] = max(
+                    new_co_cnt.get((name1, name2), 0.0), prob)
+                
+                def add_name_to_dict(key, value, name_pair_dict):
+                    if name_pair_dict.get(key, None) is None:
+                        tmp = set()
+                        tmp.add(value)
+                        name_pair_dict[key] = tmp
+                    else:
+                        tmp = name_pair_dict[key]
+                        tmp.add(value)
+                        name_pair_dict[key] = tmp
+                add_name_to_dict(name1, name2, name_pair_dict)
+                add_name_to_dict(name2, name1, name_pair_dict)
+
+    # find max score pair
+    max_score_name_pair = {}
+    for name, pairs in name_pair_dict.items():
+        max_score = 0
+        pair = None
+        for p in pairs:
+            name1, name2 = sorted_name(name, p)
+            score = new_co_cnt.get((name1, name2))
+            if score > max_score:
+                pair = (name, p)
+                max_score = score
+        max_score_name_pair[pair] = max_score
+    return new_co_cnt, name_pair_dict, max_score_name_pair
 
 
-def find_max_co_name_info(name, name_pair_dict, co_cnt):
+def sorted_name(name1, name2):
+    if name1 < name2:
+        return name1, name2
+    return name2, name1
+
+
+def find_max_co_name_info(name, name_pair_dict, co_cnt, name_dict, black_list):
     """
     输入一个姓名，找到其最大共现的姓名
     note: 需要先加载co_cnt.pkl 得到co_cnt 字典对象，
@@ -273,72 +297,110 @@ def find_max_co_name_info(name, name_pair_dict, co_cnt):
     :param name 输入的姓名
     :param name_pair_dict 姓名pair字典
     :param co_cnt 姓名pair与得分的字典
+    :param name_dict 姓名与性别的对应字典
+    :param blcak_list 黑名单列表，出现在该名单的人物，不上榜
     :return target_name:匹配的姓名, score:得分
     """
     target_name = name_pair_dict.get(name, '')
     if target_name == '':
-        raise Exception('你没有有缘人')
-    score = co_cnt.get((name, target_name), 0.0)
-    return target_name, score
+        raise Exception('众里寻ta千百度，也没找到{}的有缘人'.format(name))
+    max_score = 0
+    tname = None
+    ns = {}
+    sex_flag = name_dict.get(name)
+    for tn in target_name:
+        if black_list is not None and tn in black_list:
+            continue
+        if name_dict.get(tn) == sex_flag:
+            continue
+        name1, name2 = sorted_name(name, tn)
+        score = co_cnt.get((name1, name2), 0.0)
+        ns[tn] = score
+        if max_score < score:
+            max_score = score
+            tname = tn
+    return tname, max_score
+
+
+def load_helper_dict(path):
+    """
+    加载相关辅助文件信息
+    :param path 文件所在的目录
+    """
+    # 1.读取共现表
+    with open(os.path.join(path, 'co_cnt.pkl'), 'rb') as fd:
+        co_cnt = pickle.load(fd)
+    # 2. 读取姓名对应表
+    with open(os.path.join(path, 'name_pair_dict.pkl'), 'rb') as fd:
+        name_pair_dict = pickle.load(fd)
+    # 3. 读取姓名和性别对应信息
+    name_dict = read_name_dict_data(os.path.join(path, 'name_dict.txt'))
+
+    # 4. 读取黑名单，该姓名不上榜
+    black_list = set()
+    with open(os.path.join(path, 'black_list.txt'), 'r', encoding='utf-8') as fd:
+        for line in fd:
+            black_list.add(line.strip())
+
+    return co_cnt, name_pair_dict, name_dict, black_list
 
 
 if __name__ == '__main__':
-    path = '/Users/macan/Desktop/chinese-poetry-master' # 古诗词路径
-    class_name_tabel_path = '/Users/macan/Desktop/Vcamp/2019Vcamp 3班班级通讯录.xlsx' # 班级通讯录路劲
-    # 姓名名录数据
-    name_dict_path = 'dataset/name_dict.txt'
-    # 加载班级通讯录，得到同学姓名信息
-    if os.path.exists(name_dict_path) and os.path.isfile(name_dict_path):
-        print('load local name dict form <{}>'.format(name_dict_path))
-        filter_dict = read_line_data(name_dict_path)
-    else:
-        print('get name dict from class name excel file.')
-        filter_dict = load_local_name_record(class_name_tabel_path)
-        with open('dataset/name_dict.txt', 'w', encoding='utf-8') as fd:
-            for line in filter_dict:
-                fd.write(line + '\n')
-    # 去除姓
-    filter_dict = [x[1:] for x in filter_dict]
-    print('name filter dict size:{}'.format(len(filter_dict)))
+    # path = '/Users/macan/Desktop/chinese-poetry-master' # 古诗词路径
+    # class_name_tabel_path = '/Users/macan/Desktop/Vcamp/2019Vcamp 3班班级通讯录.xlsx' # 班级通讯录路劲
+    # # 姓名名录数据
+    # name_dict_path = '../../dataset/name_dict.txt'
+    # # 加载班级通讯录，得到同学姓名信息
+    # if os.path.exists(name_dict_path) and os.path.isfile(name_dict_path):
+    #     print('load local name dict form <{}>'.format(name_dict_path))
+    #     name_dict = read_name_dict_data(name_dict_path)
+    # else:
+    #     print('get name dict from class name excel file.')
+    #     name_dict = load_local_name_record(class_name_tabel_path)
+    #     with open('../../dataset/name_dict.txt', 'w', encoding='utf-8') as fd:
+    #         for name, sex in name_dict.items():
+    #             fd.write(name + '\t' + sex + '\n')
+    # filter_dict = name_dict.keys()
+    # # 去除姓
+    # filter_dict = [x[1:] for x in filter_dict]
+    # print('name filter dict size:{}'.format(len(filter_dict)))
 
-    # 读取古诗词数据
-    # docs = load_poem(path)
-    # save_poem_content(docs, 'poem.txt')
+    # # # 读取古诗词数据
+    # # docs = load_poem(path)
+    # # save_poem_content(docs, 'poem.txt')
 
-    conf = SparkConf()
-    spark = SparkSession \
-        .builder \
-        .appName('co-word-count') \
-        .master('local[*]') \
-        .config(conf=conf) \
-        .getOrCreate()
-    data = spark.read.text('poem.txt').distinct()
-    data.show()
-    #data.rdd.flatmap(lambda x: token_distance(x[0])).reduceByKey()
-    counts = word_count_and_sorted(spark, data)
-    counts.show(2000)
-    print(counts.count())
-    counts.repartition(1).write.json('dataset/co-token-cnt')
-    spark.stop()
+    # conf = SparkConf()
+    # spark = SparkSession \
+    #     .builder \
+    #     .appName('co-word-count') \
+    #     .master('local[*]') \
+    #     .config(conf=conf) \
+    #     .getOrCreate()
+    # data = spark.read.text('poem.txt').distinct()
+    # data.show()
+    # #data.rdd.flatmap(lambda x: token_distance(x[0])).reduceByKey()
+    # counts = word_count_and_sorted(spark, data, filter_dict)
+    # counts.show(2000)
+    # print(counts.count())
+    # counts.repartition(1).write.json('../../dataset/co-token-cnt')
+    # spark.stop()
     
     # os.rename('../../dataset/co-token-cnt/.pa')
     # 手动将保存的计算结果文件名改为co_token_cnt.json
     path = '../../dataset/co_token_cnt.json'
     co_cnt = load_co_token_cnt(path)
     #print(co_cnt)
-    names = read_line_data('../../dataset/name_dict.txt')
-
+    name_dict = read_name_dict_data('../../dataset/name_dict.txt')
+    names = name_dict.keys()
     # 得到姓名对和其得分的map
-    names = name_match(co_cnt, names)
+    co_cnt, name_pair_dict, max_name_pair_dict = name_match(co_cnt, names)
     print(names)
+
     # 将其保存到文件中
     with open('../../dataset/co_cnt.pkl', 'wb') as fd:
-        pickle.dump(names, fd)
+        pickle.dump(co_cnt, fd)
 
     #得到姓名对，并且保存到文件中
-    name_pair_dict = {k[0]: k[1] for k, _ in names.items()}
+    # name_pair_dict = {k[0]: k[1] for k, _ in names.items()}
     with open('../../dataset/name_pair_dict.pkl', 'wb') as fd:
         pickle.dump(name_pair_dict, fd)
-
-
-
