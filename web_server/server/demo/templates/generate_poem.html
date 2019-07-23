@@ -16,44 +16,46 @@
 <body>
 
 <div>
-    <div class="poem">
-        {{poem}}
-    </div>
-
+    <div>
     <img src="../static/images/background2.png" style="width:100%">
     <img src="../static/user_photos/范冰冰.jpeg" class="user_photo">
-    <form enctype="multipart/form-data" action="make_name" method="post" style="top: 45%">
-        <button  type="submit" class="buttom_box" value={{name1}},{{name2}} name="content">给孩子起名
-        </button>
-    </form>
+        <form enctype="multipart/form-data" action="make_name" method="post">
+            <button  type="submit" class="buttom_box" value={{name1}},{{name2}} name="content">给孩子起名
+            </button>
+        </form>
+
+        <div class="poem">
+            {{poem}}
+        </div>
+    </div>
 </div>
 
 </body>
 <style>
 
 .poem{
-    width: 450px;
+    width: 30%;
     position: absolute;
     left: 18%;
     top: 50%;
     text-align: center;
     font-family: my_font;
-    font-size: 35px;
+    font-size: 2.4vw;
     /*border: black 1px solid;*/
 }
 
 .user_photo {
     width: 32%;
-    height: 35%;
+    /*height: 35%;*/
     position: absolute;
     left: 55%;
     top: 28%;
-    z-index: 1;
+    /*z-index: 1;*/
     /*float: left;*/
 }
 .buttom_box{
-    font-size: 18px;
-    width: 200px;
+    font-size: 1.5vw;
+    width: 14%;
     text-align: center;
     position: absolute;
     background: rgb(41,10,89);
@@ -62,7 +64,7 @@
     border-radius:12px;
     left: 55%;
     /*margin-left: -100px;*/
-    margin-top: -18%;
+    top: 65%;
 }
 
 </style>
