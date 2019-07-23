@@ -8,3 +8,8 @@
 `create_name`:给孩子起名部分    
 `src`: 名字匹配部分  
 `web_server`: web服务端与前端部分
+
+
+## 启动服务
+`cd web_server/server`  
+`python manage.py runserver`
