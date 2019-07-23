@@ -1,6 +1,3 @@
-# 藏头诗生成
-
-
-## 文件配置
-`char_embedding/`: 字向量预训练  
-`dataset/`: 数据集文件
+函数create_name(father_name,mother_name,is_girl=True) ；
+输入：父亲姓名，母亲姓名，所生孩子是否为女孩 ；
+输出：孩子的名称 。
