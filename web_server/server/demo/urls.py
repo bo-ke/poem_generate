@@ -17,5 +17,7 @@ from . import views
 urlpatterns = [
     path('',views.home,name='home'),
     path('enter_a_name',views.enter_a_name,name='enter_a_name'),
-    path('match_name',views.match_name,name='match_name')
+    path('match',views.match,name='match_name'),
+    path('generate',views.generate,name='generate_poem'),
+    path('make_name',views.make_name,name='make_name')
 ]

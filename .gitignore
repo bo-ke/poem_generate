@@ -9,3 +9,6 @@ dataset/
 
 # embedding等数据
 char_embedding/data
+
+# webserver 静态文件
+static/
