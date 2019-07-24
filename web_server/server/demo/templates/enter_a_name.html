@@ -10,18 +10,15 @@
 
 <div>
 <!--    "tittle"-->
-    <div>
-        <form enctype="multipart/form-data" action="match" method="post" style="top: 45%"
-        >
-            <input type="text" class="enter_box" name="username" style="border-radius:12px;
-                border: rgb(29,32,136) 1px solid;text-align: center;top:45%" placeholder="请输入你的名字">
+    <form enctype="multipart/form-data" action="match" method="post" class="enter_box" style="top:48%">
+        <input type="text" name="username" style="border-radius:12px;width: 100%;
+            border: rgb(29,32,136) 1px solid;text-align: center;" placeholder="请输入你的名字">
 
-            <input class="enter_box" type="submit"  style="top:52%;background: rgb(41,10,89);color: white;
-                border: rgb(29,32,136) 1px solid;border-radius:12px" value="匹配情人">
-        </form>
+        <input  type="submit" style="margin-top: 8%;background: rgb(41,10,89);color: white;
+            border: rgb(29,32,136) 1px solid;border-radius:12px;width: 100%" value="匹配有缘人">
+    </form>
 
-        <img src="../static/images/background.png" style="width:100%">
-    </div>
+    <img src="../static/images/background.png" style="width:100%">
 </div>
 </body>
 
@@ -31,8 +28,10 @@
     position: absolute;
     left: 50%;
     margin-left: -8.5%;
-    line-height: 34px;
+    border: black 1px solid;
+    line-height: 2.3vw;
     /*z-index: 3;*/
+    font-size: 1.1vw;
 }
 </style>
 </html>
