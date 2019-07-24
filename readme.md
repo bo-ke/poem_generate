@@ -7,7 +7,7 @@
 `api`: 数据接口文件  
 `create_name`:给孩子起名部分    
 `src`: 名字匹配部分  
-`generation`: 古诗生成
+`generation`: 古诗生成  
 `web_server`: web服务端与前端部分
 
 
