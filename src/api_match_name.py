@@ -24,7 +24,7 @@ def api_match_name(name):
 
 
 if __name__ == '__main__':
-    names = ['张立', '胡妍', '谢腾', '杨紫', '唐梅枝']
+    names = ['张立', '胡妍', '谢腾', '杨紫','高策',"李志帅"]
     for name in names:
         target_name, score = api_match_name(name)
         print('{} and {} match score:{}'.format(name, target_name, score))
