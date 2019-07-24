@@ -2,16 +2,16 @@
 import sys
 import os
 import torch as t
-from data import get_data
-from model import PoetryModel
+from .data import get_data
+from .model import PoetryModel
 from torch import nn
-from utils import Visualizer
+from .utils import Visualizer
 import tqdm
 from torchnet import meter
 import ipdb
-import main
-from main import Config
-from main import gen
+# import main
+from .main import Config
+from .main import gen
 
 def test(boy_name, girl_name):
     opt = Config()

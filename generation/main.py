@@ -2,10 +2,10 @@
 import sys
 import os
 import torch as t
-from data import get_data
-from model import PoetryModel
+from .data import get_data
+from .model import PoetryModel
 from torch import nn
-from utils import Visualizer
+from .utils import Visualizer
 import tqdm
 from torchnet import meter
 import ipdb
