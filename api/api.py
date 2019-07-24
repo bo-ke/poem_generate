@@ -16,7 +16,10 @@ from generation import api_generate
 
 def api_gen_photo(name2):
     photo_name = name2
-    return photo_name
+    hidden = False
+    if name2 in ["程萌","张一山","胡歌","杨紫","李鸿斌","胡妍","张立","唐梅芝"]:
+        hidden = True
+    return photo_name,hidden
 
 if __name__ == '__main__':
     name = "李志帅"

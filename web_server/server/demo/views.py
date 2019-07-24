@@ -61,11 +61,13 @@ def generate(req):
         info = req.POST['content']
         name1,name2 = info.split(",")
         poem_content = api_generate(name1,name2)
-        photo_name = api_gen_photo(name2)
+        print(poem_content)
+        photo_name,hidden = api_gen_photo(name2)
         return render_to_response("generate_poem.html",{"poem":poem_content,
                                                         "photo_name":photo_name,
                                                         "name1":name1,
-                                                        "name2":name2})
+                                                        "name2":name2,
+                                                        "hidden":hidden})
     else:
         message = "Please use the right request"
         return HttpResponse(message)
