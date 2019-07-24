@@ -5,7 +5,7 @@
 __pycache__
 
 # 数据集文件
-dataset/poetry/
+dataset/
 
 # embedding等数据
 char_embedding/data

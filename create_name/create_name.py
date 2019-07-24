@@ -14,14 +14,14 @@ import gensim
 #path1 = '/home/lbj/Desktop/my_tensorflow_poems-master/'
 
 def name_vector():
-    embedding_model = gensim.models.Word2Vec.load('word_embedded_model')
+    embedding_model = gensim.models.Word2Vec.load('../dataset/word_embedded_model')
     index2boy = dict()
     index2girl = dict()
     boyname_vec = []
     girlname_vec = []
     temp = []
     temp2 = []
-    with open('boy_n.txt') as f:
+    with open('../dataset/boy_n.txt') as f:
         for nm in f.readlines():
             nm = nm.strip()
             if nm not in temp and nm:
@@ -33,7 +33,7 @@ def name_vector():
                     continue
             
             
-    with open('girl_n.txt') as f:
+    with open('../dataset/girl_n.txt') as f:
         for nm in f.readlines():
             nm = nm.strip()
             if nm not in temp2 and nm:
@@ -82,4 +82,4 @@ def create_name(father_name,mother_name,is_girl=True):
     return father_name[0]+father_part_name+mother_part_name
  
 if __name__ == "__main__":
-    print(create_name('张立','胡妍',is_girl=False))
+    print(create_name('张立','胡妍',is_girl=True))
