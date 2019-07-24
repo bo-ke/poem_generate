@@ -28,7 +28,7 @@ class Config(object):
     env = 'poetry'  # visdom env
     max_gen_len = 200  # 生成诗歌最长长度
     debug_file = '/tmp/debugp'
-    model_path = 'checkpoints/tang_199.pth'  # 预训练模型路径
+    model_path = '../checkpoints/tang_199.pth'  # 预训练模型路径
     prefix_words = '细雨鱼儿出,微风燕子斜。'  # 不是诗歌的组成部分，用来控制生成诗歌的意境
     start_words = '闲云潭影日悠悠'  # 诗歌开始
     acrostic = True  # 是否是藏头诗
