@@ -13,6 +13,10 @@ import ipdb
 from generation.main import Config
 from generation.main import gen
 
+from project_config import PROJECT_ROOT_PATH
+PICKLE_PATH = os.path.join(PROJECT_ROOT_PATH,"generation/tang.npz")
+MODEL_PATH = os.path.join(PROJECT_ROOT_PATH,"generation/checkpoints/tang_199.pth")
+
 def test(boy_name, girl_name):
     opt = Config()
     if boy_name == "张立":
@@ -26,7 +30,7 @@ def test(boy_name, girl_name):
     else:
         opt.prefix_words = "借问江潮与海水，何似君情与妾心。"
     opt.data_path = 'data/'
-    opt.pickle_path = 'tang.npz'  # 预处理好的二进制文件
+    opt.pickle_path = PICKLE_PATH  # 预处理好的二进制文件
     opt.author = None  # 只学习某位作者的诗歌
     opt.constrain = None  # 长度限制
     opt.category = 'poet.tang'  # 类别，唐诗还是宋诗歌(poet.song)
@@ -40,7 +44,7 @@ def test(boy_name, girl_name):
     opt.env = 'poetry'  # visdom env
     opt.max_gen_len = 200  # 生成诗歌最长长度
     opt.debug_file = '/tmp/debugp'
-    opt.model_path = '../checkpoints/tang_199.pth'  # 预训练模型路径
+    opt.model_path = MODEL_PATH  # 预训练模型路径
     tran_dict = {"高梽强": "高志强", "胡钰培": "胡玉培", "张鑫": "张金", "谭官鑫": "谭官金", "覃营晟": "覃营盛", "张琦": "张奇", "刘晗": "刘含"}
     if boy_name in tran_dict: boy_name = tran_dict[boy_name]
     if girl_name in tran_dict: girl_name = tran_dict[girl_name]

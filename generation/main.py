@@ -196,7 +196,7 @@ def gen(opt):
     # for k, v in kwargs.items():
     #     setattr(opt, k, v)
     data, word2ix, ix2word = get_data(opt)
-    model = PoetryModel(len(word2ix), 128, 256);
+    model = PoetryModel(len(word2ix), 128, 256)
     map_location = lambda s, l: s
     state_dict = t.load(opt.model_path, map_location=map_location)
     model.load_state_dict(state_dict)

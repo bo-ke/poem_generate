@@ -5,11 +5,8 @@
 
 @version: 1.0
 @file: __init__.py
-@time: 2019-07-23 11:24
+@time: 2019-07-24 16:44
 
 这一行开始写关于本文件的说明与解释
 """
-from api.api_fake import match_name,\
-    gen_poem,gen_photo,gen_name
-
-from api.api import api_make_name,api_match_name,api_generate
+from generation.api_poem_generate import api_generate

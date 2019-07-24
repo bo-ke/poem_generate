@@ -13,7 +13,7 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from api import match_name,gen_photo,gen_poem,gen_name
-from api import api_match_name,api_make_name
+from api import api_match_name,api_make_name,api_generate
 
 # Create your views here.
 def home(req):
@@ -60,7 +60,7 @@ def generate(req):
     if req.method =='POST':
         info = req.POST['content']
         name1,name2 = info.split(",")
-        poem_content = gen_poem(name1,name2)
+        poem_content = api_generate(name1,name2)
         photo_name = gen_photo(name1,name2)
         return render_to_response("generate_poem.html",{"poem":poem_content,
                                                         "photo_name":photo_name,
