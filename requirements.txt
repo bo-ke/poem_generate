@@ -4,3 +4,4 @@ pyspark == 2.4.3
 visdom == 0.1.8.8
 torchnet == 0.0.4
 ipdb == 0.12
+numpy == 1.16.2
