@@ -13,6 +13,7 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from api import match_name,gen_photo,gen_poem,gen_name
+from api import api_match_name,api_make_name
 
 # Create your views here.
 def home(req):
@@ -43,7 +44,7 @@ def match(req):
         # print(req.POST)
         name = req.POST['username']
         # print(name)
-        name2 = match_name(name)
+        name2,score = api_match_name(name)
         return render_to_response("match_name.html",{'name1':name,
                                                      'name2':name2})
     else:
@@ -62,7 +63,9 @@ def generate(req):
         poem_content = gen_poem(name1,name2)
         photo_name = gen_photo(name1,name2)
         return render_to_response("generate_poem.html",{"poem":poem_content,
-                                                        "photo_name":photo_name})
+                                                        "photo_name":photo_name,
+                                                        "name1":name1,
+                                                        "name2":name2})
     else:
         message = "Please use the right request"
         return HttpResponse(message)
@@ -75,9 +78,12 @@ def make_name(req):
     """
     if req.method=="POST":
         info=req.POST['content']
+        # print(info)
         name1,name2 = info.split(",")
-        name_son = gen_name(name1,name2)
-        return render_to_response("make_name.html",{"name_son":name_son})
+        # print(name1,name2)
+        name_child = api_make_name(name1,name2)
+        # name_child = "test"
+        return render_to_response("make_name.html",{"name_son":name_child})
     else:
         message = "Please use the right requests"
         return HttpResponse(message)

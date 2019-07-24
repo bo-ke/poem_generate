@@ -10,18 +10,23 @@ import numpy as np
 import re
 import os
 import gensim
+from project_config import PROJECT_ROOT_PATH
 
+
+EMBEDDING_PATH = os.path.join(PROJECT_ROOT_PATH,"dataset/word_embedded_model")
+BOY_NAME_PATH = os.path.join(PROJECT_ROOT_PATH,"dataset/boy_n.txt")
+GIRL_NAME_PATH = os.path.join(PROJECT_ROOT_PATH,"dataset/girl_n.txt")
 #path1 = '/home/lbj/Desktop/my_tensorflow_poems-master/'
 
 def name_vector():
-    embedding_model = gensim.models.Word2Vec.load('../dataset/word_embedded_model')
+    embedding_model = gensim.models.Word2Vec.load(EMBEDDING_PATH)
     index2boy = dict()
     index2girl = dict()
     boyname_vec = []
     girlname_vec = []
     temp = []
     temp2 = []
-    with open('../dataset/boy_n.txt') as f:
+    with open(BOY_NAME_PATH) as f:
         for nm in f.readlines():
             nm = nm.strip()
             if nm not in temp and nm:
@@ -33,7 +38,7 @@ def name_vector():
                     continue
             
             
-    with open('../dataset/girl_n.txt') as f:
+    with open(GIRL_NAME_PATH) as f:
         for nm in f.readlines():
             nm = nm.strip()
             if nm not in temp2 and nm:

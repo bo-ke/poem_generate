@@ -11,3 +11,5 @@
 """
 from api.api_fake import match_name,\
     gen_poem,gen_photo,gen_name
+
+from api.api import api_make_name,api_match_name
