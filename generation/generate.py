@@ -2,16 +2,16 @@
 import sys
 import os
 import torch as t
-from .data import get_data
-from .model import PoetryModel
+from generation.data import get_data
+from generation.model import PoetryModel
 from torch import nn
-from .utils import Visualizer
+from generation.utils import Visualizer
 import tqdm
 from torchnet import meter
 import ipdb
 # import main
-from .main import Config
-from .main import gen
+from generation.main import Config
+from generation.main import gen
 
 def test(boy_name, girl_name):
     opt = Config()
@@ -53,5 +53,6 @@ def test(boy_name, girl_name):
     res = gen(opt)
     return res
 
-res = test("唐梅芝","刘昊然")
-print(res)
+if __name__ == '__main__':
+    res = test("唐梅芝","刘昊然")
+    print(res)
