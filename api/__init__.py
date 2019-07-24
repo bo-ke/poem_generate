@@ -12,4 +12,4 @@
 from api.api_fake import match_name,\
     gen_poem,gen_photo,gen_name
 
-from api.api import api_make_name,api_match_name,api_generate
+from api.api import api_make_name,api_match_name,api_generate,api_gen_photo

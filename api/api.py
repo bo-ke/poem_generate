@@ -14,13 +14,15 @@ from src import api_match_name
 from generation import api_generate
 
 
-
+def api_gen_photo(name2):
+    photo_name = name2
+    return photo_name
 
 if __name__ == '__main__':
-    name = "张立"
+    name = "李志帅"
     name2,score = api_match_name(name)
-    name_child = api_make_name(name,name2,is_girl=True)
+    # name_child = api_make_name(name,name2,is_girl=True)
     print(name2,score)
-    poem = api_generate(name,name2)
-    print(poem)
-    print(name_child)
+    # poem = api_generate(name,name2)
+    # print(poem)
+    # print(name_child)
