@@ -40,7 +40,7 @@ def test(boy_name, girl_name):
     opt.env = 'poetry'  # visdom env
     opt.max_gen_len = 200  # 生成诗歌最长长度
     opt.debug_file = '/tmp/debugp'
-    opt.model_path = 'checkpoints/tang_199.pth'  # 预训练模型路径
+    opt.model_path = '../checkpoints/tang_199.pth'  # 预训练模型路径
     tran_dict = {"高梽强": "高志强", "胡钰培": "胡玉培", "张鑫": "张金", "谭官鑫": "谭官金", "覃营晟": "覃营盛", "张琦": "张奇", "刘晗": "刘含"}
     if boy_name in tran_dict: boy_name = tran_dict[boy_name]
     if girl_name in tran_dict: girl_name = tran_dict[girl_name]
