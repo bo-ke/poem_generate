@@ -63,6 +63,11 @@ def generate(req):
         poem_content = api_generate(name1,name2)
         print(poem_content)
         photo_name,hidden = api_gen_photo(name2)
+        print(hidden)
+        # hidden = "hidden"
+        # hidden = "style{;}"
+        print(photo_name)
+        # photo_name = "杨紫2"
         return render_to_response("generate_poem.html",{"poem":poem_content,
                                                         "photo_name":photo_name,
                                                         "name1":name1,

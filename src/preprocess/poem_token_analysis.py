@@ -303,7 +303,8 @@ def find_max_co_name_info(name, name_pair_dict, co_cnt, name_dict, black_list):
     """
     target_name = name_pair_dict.get(name, '')
     if target_name == '':
-        raise Exception('众里寻ta千百度，也没找到{}的有缘人'.format(name))
+        # raise Exception('众里寻ta千百度，也没找到{}的有缘人'.format(name))
+        return None,0.0
     max_score = 0
     tname = None
     ns = {}

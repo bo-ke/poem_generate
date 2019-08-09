@@ -27,7 +27,8 @@ def api_match_name(name):
         co_cnt, name_pair_dict, name_dict, black_list = load_helper_dict(path)
         # 测试输入姓名，得到对应的”有缘人“
         target_name, score = find_max_co_name_info(name, name_pair_dict, co_cnt, name_dict, black_list)
-
+    if target_name == None:
+        target_name = "404"
     return target_name,score
 
 

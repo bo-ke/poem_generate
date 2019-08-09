@@ -17,4 +17,7 @@ def api_generate(name1,name2):
 
 
 if __name__ == '__main__':
-    print(api_generate("刘昊然","唐梅枝"))
+    print(api_generate("唐梅芝","胡歌"))
+    print(api_generate("李鸿斌","程萌"))
+    print(api_generate("张立","胡妍"))
+    print(api_generate("张一山","杨紫"))
