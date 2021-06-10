@@ -1,4 +1,4 @@
-django == 2.0.13
+django == 2.2.24
 zhconv == 1.4.0
 pyspark == 2.4.3
 visdom == 0.1.8.8
