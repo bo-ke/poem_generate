@@ -1,6 +1,6 @@
 django == 2.0.13
 zhconv == 1.4.0
-pyspark == 2.4.3
+pyspark == 3.2.2
 visdom == 0.1.8.8
 torchnet == 0.0.4
 ipdb == 0.12
